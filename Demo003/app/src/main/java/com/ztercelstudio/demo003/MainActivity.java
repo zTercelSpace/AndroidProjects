@@ -35,6 +35,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.tvBind: {
                 Intent intent = new Intent(this, LifePeriodService.class);
                 bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+                break;
+            }
+            case R.id.tvBind2: {
+                Intent intent = new Intent("com.ztercelstudio.demo003.lifeperiodAction");
+                bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
                 break;
             }
