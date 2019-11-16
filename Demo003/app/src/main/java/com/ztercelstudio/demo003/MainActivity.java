@@ -38,7 +38,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.tvBind2: {
-                Intent intent = new Intent("com.ztercelstudio.demo003.lifeperiodAction");
+                Intent intent = new Intent();
+                intent.setAction("com.ztercelstudio.demo003.lifeperiodAction");
+                intent.setPackage(getPackageName());
                 bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
                 break;
