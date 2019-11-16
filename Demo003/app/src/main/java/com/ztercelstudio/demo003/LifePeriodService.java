@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 public class LifePeriodService extends Service {
 
@@ -29,6 +30,10 @@ public class LifePeriodService extends Service {
         LifePeriodService getService() {
             return LifePeriodService.this;
         }
+    }
+
+    public void toastInfo() {
+        Toast.makeText(this, "i come from service", Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -65,5 +70,7 @@ public class LifePeriodService extends Service {
     @Override
     public void onRebind(Intent intent) {
         super.onRebind(intent);
+
+        Log.d(TAG, "LifePeriodService::onRebind");
     }
 }
