@@ -14,7 +14,23 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private final String TAG = "zTercel";
-    private LifePeriodService.LocalBinder mService;
+    private LifePeriodService.LocalBinder mService = null;
+    private ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = (LifePeriodService.LocalBinder)service;
+
+            Log.d(TAG, "MainActivity::onServiceConnected: " + mService.add(10, 10));
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+
+            Log.d(TAG, "MainActivity::onServiceDisconnected");
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,21 +78,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
     }
-
-    private ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mService = (LifePeriodService.LocalBinder)service;
-
-            Log.d(TAG, "MainActivity::onServiceConnected: " + mService.add(10, 10));
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-
-            Log.d(TAG, "MainActivity::onServiceDisconnected");
-        }
-    };
 }
