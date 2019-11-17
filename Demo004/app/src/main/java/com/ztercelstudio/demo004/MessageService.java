@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 
 
@@ -23,7 +24,18 @@ public class MessageService extends Service {
             Log.d(TAG, "MessageService receive a message");
             Log.d(TAG, "message what: " + msg.what);
             Log.d(TAG, "message name: " + bundle.getString("name"));
-            Log.d(TAG, "message age: " + bundle.getInt("age", 0));
+            Log.d(TAG, "message age: " + bundle.getInt("age"));
+            Log.d(TAG, "message tid: " + bundle.getLong("tid"));
+            if (null != msg.replyTo) {
+                Message message = Message.obtain(msg);
+                message.what = 999;
+                message.getData().putLong("tid", Thread.currentThread().getId());
+                try {
+                    msg.replyTo.send(message);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

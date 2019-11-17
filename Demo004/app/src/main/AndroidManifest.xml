@@ -17,7 +17,11 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".MessageService"/>
+        <service android:name=".MessageService">
+            <intent-filter>
+                <action android:name="com.ztercelstudio.demo004.Service"/>
+            </intent-filter>
+        </service>
 
     </application>
 

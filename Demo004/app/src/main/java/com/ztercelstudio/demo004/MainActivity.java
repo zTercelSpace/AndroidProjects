@@ -1,5 +1,6 @@
 package com.ztercelstudio.demo004;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ComponentName;
@@ -18,9 +19,20 @@ import android.view.View;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     static final String TAG = "zTercel";
-
+    Messenger mReceiver     = new Messenger(new MessageReceiver());
     Messenger mMessenger    = null;
     boolean mIsBound        = false;
+
+    class MessageReceiver extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            Log.d(TAG, "MainActivity::MessageReceiver receive a message");
+            Log.d(TAG, "message what: " + msg.what);
+            Log.d(TAG, "message name: " + msg.getData().getString("name"));
+            Log.d(TAG, "message age: " + msg.getData().getInt("age"));
+            Log.d(TAG, "message tid: " + msg.getData().getInt("tid"));
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()) {
             case R.id.btBind: {
                 Intent intent = new Intent(this, MessageService.class);
+                intent.setAction("com.ztercelstudio.demo004.Service");
                 bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
 
                 break;
@@ -57,6 +70,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Bundle data = new Bundle();
                 data.putString("name", "Greg");
                 data.putInt("age", 30);
+                data.putLong("tid", Thread.currentThread().getId());
+                message.replyTo = mReceiver;
                 message.setData(data);
 
                 try {
