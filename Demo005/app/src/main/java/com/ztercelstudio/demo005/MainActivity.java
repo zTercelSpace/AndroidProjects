@@ -10,9 +10,10 @@ import android.view.View;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    StandardReceiver mStandardReceiver;// = new StandardReceiver(this);
-    OrderReceiver mOrderReceiver    = new OrderReceiver();
+    StandardReceiver mStandardReceiver;
+    OrderReceiver mOrderReceiver;
     LocalReceiver mLocalReceiver;
+    RecycleReceiver mRecycleReceiver;
     LocalBroadcastManager mLocalManager;
 
     @Override
@@ -20,11 +21,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //mStandardReceiver.registerBroadcast(StandardReceiver.STARDAND_ACTION);
-        mStandardReceiver = new StandardReceiver(this);
+        mStandardReceiver = new StandardReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(StandardReceiver.STARDAND_ACTION);
         registerReceiver(mStandardReceiver, filter);
+
+        mOrderReceiver = new OrderReceiver();
+        IntentFilter orderFilter = new IntentFilter();
+        orderFilter.addAction(OrderReceiver.ORDER_ACTION);
+        orderFilter.setPriority(10);
+        registerReceiver(mOrderReceiver, orderFilter);
+
+        mRecycleReceiver = new RecycleReceiver();
+        IntentFilter recycleFilter = new IntentFilter();
+        recycleFilter.addAction(OrderReceiver.ORDER_ACTION);
+        recycleFilter.addAction(StandardReceiver.STARDAND_ACTION);
+        recycleFilter.setPriority(1000);   // 优先级高于 orderReceiver, 先收到过广播
+        registerReceiver(mRecycleReceiver, recycleFilter);
 
         mLocalReceiver = new LocalReceiver();
         mLocalManager = LocalBroadcastManager.getInstance(this);
@@ -41,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.btOrder: {
+                sendOrderedBroadcast(new Intent(OrderReceiver.ORDER_ACTION), null);
                 break;
             }
             case R.id.btLocal: {

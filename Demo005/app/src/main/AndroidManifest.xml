@@ -13,9 +13,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <receiver
-            android:name=".OrderReceiver"
+            android:name=".RecycleReceiver"
             android:enabled="true"
             android:exported="true"></receiver>
+        <receiver
+            android:name=".OrderReceiver"
+            android:enabled="true"
+            android:exported="true" />
         <receiver
             android:name=".LocalReceiver"
             android:enabled="true"
