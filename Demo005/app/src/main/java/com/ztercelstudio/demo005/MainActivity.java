@@ -47,6 +47,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mStandardReceiver);
+        unregisterReceiver(mOrderReceiver);
+        unregisterReceiver(mRecycleReceiver);
+        mLocalManager.unregisterReceiver(mLocalReceiver);
+    }
+
+    @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btStardand: {
