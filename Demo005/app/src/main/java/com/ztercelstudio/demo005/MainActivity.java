@@ -1,12 +1,20 @@
 package com.ztercelstudio.demo005;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.ConnectivityManager.NetworkCallback;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -36,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         IntentFilter recycleFilter = new IntentFilter();
         recycleFilter.addAction(OrderReceiver.ORDER_ACTION);
         recycleFilter.addAction(StandardReceiver.STARDAND_ACTION);
+        // recycleFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
         recycleFilter.setPriority(1000);   // 优先级高于 orderReceiver, 先收到过广播
         registerReceiver(mRecycleReceiver, recycleFilter);
 
@@ -44,6 +53,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         IntentFilter localFilter = new IntentFilter();
         localFilter.addAction(LocalReceiver.LOCAL_ACTION);
         mLocalManager.registerReceiver(mLocalReceiver, localFilter);
+
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(CONNECTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            NetworkRequest.Builder builder = new NetworkRequest.Builder();
+            builder.addCapability(NetworkCapabilities.TRANSPORT_CELLULAR);
+            builder.addCapability(NetworkCapabilities.TRANSPORT_WIFI);
+            connectivityManager.registerNetworkCallback(builder.build(), new NetworkCallback() {
+                @Override
+                public void onAvailable(@NonNull Network network) {
+                    super.onAvailable(network);
+
+                    Toast.makeText(MainActivity.this, "onAvailable", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onUnavailable() {
+                    super.onUnavailable();
+                }
+
+                @Override
+                public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+                    super.onCapabilitiesChanged(network, networkCapabilities);
+
+                    String info = "onAvailable " + networkCapabilities.getSignalStrength();
+                    Toast.makeText(MainActivity.this, info, Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onLost(@NonNull Network network) {
+                    super.onLost(network);
+                }
+            });
+        }
     }
 
     @Override

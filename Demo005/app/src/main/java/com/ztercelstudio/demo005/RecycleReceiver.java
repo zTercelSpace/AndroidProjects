@@ -14,8 +14,6 @@ public class RecycleReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "RecycleReceiver::onReceive received a message " + intent.getAction());
 
-        Toast.makeText(context, intent.getAction(), Toast.LENGTH_LONG).show();
-        //NetWorkHelper networkHelper = NetWorkHelper.getInstance(context);
-
+       Toast.makeText(context, intent.getAction(), Toast.LENGTH_LONG).show();
     }
 }
