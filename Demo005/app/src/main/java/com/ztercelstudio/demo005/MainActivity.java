@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         IntentFilter recycleFilter = new IntentFilter();
         recycleFilter.addAction(OrderReceiver.ORDER_ACTION);
         recycleFilter.addAction(StandardReceiver.STARDAND_ACTION);
-        recycleFilter.setPriority(1000);   // 优先级高于 orderReceiver, 先收到过广播
+        recycleFilter.setPriority(1000);   // 优先级高于 orderReceiver, 先收到过广播git
         registerReceiver(mRecycleReceiver, recycleFilter);
 
         mLocalReceiver = new LocalReceiver();

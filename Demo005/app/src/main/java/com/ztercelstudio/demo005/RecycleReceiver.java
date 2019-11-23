@@ -3,7 +3,9 @@ package com.ztercelstudio.demo005;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public class RecycleReceiver extends BroadcastReceiver {
 
@@ -14,7 +16,7 @@ public class RecycleReceiver extends BroadcastReceiver {
         Log.d(TAG, "RecycleReceiver::onReceive received a message " + intent.getAction());
 
         Toast.makeText(context, intent.getAction(), Toast.LENGTH_LONG).show();
-        //NetWorkHelper networkHelper = NetWorkHelper.getInstance(context);
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
 
     }
 }
