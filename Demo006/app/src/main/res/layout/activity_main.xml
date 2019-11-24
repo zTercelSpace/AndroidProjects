@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+    <Button
+        android:id="@+id/btn_linear"
+        android:text="线性布局"
+        android:onClick="onClick"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+
+        android:background="@android:color/holo_purple"/>
+    <Button
+        android:id="@+id/btn_relate"
+        android:text="相对布局"
+        android:onClick="onClick"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_red_dark"/>
+
+    <Button
+        android:id="@+id/btn_frame"
+        android:text="帧布局"
+        android:onClick="onClick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+
+        android:background="@android:color/holo_blue_dark"/>
+
+    <Button
+        android:id="@+id/btn_contraint"
+        android:text="约束布局"
+        android:onClick="onClick"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/holo_green_light"/>
+</LinearLayout>
