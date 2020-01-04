@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private SPHelper.IDataReceiver mDataReceiver = new SPHelper.IDataReceiver() {
         @Override
         public void onReceive(byte[] data) {
-            Log.d("zTercel", "SPHelper.IDataReceiver::onReceive");
+            Log.d("zTercel", "SPHelper.IDataReceiver::onReceive dataSize = " + data.length);
         }
     };
 
