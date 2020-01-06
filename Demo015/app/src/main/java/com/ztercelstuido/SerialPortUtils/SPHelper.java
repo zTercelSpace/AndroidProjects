@@ -29,6 +29,7 @@ public class SPHelper {
                     if (null == mFileInputStream) throw new Exception();
                     int dataSize = mFileInputStream.read(data);
                     if (0 < dataSize) {
+                        // 数据分发
                         for (IDataReceiver dataReceiver : mDataReceivers) {
                             if (null != dataReceiver) {
                                 dataReceiver.onReceive(data);
@@ -127,6 +128,20 @@ public class SPHelper {
         if (null != mSerialPort) {
             mSerialPort.closeSerialPort();
             mSerialPort = null;
+        }
+
+        try {
+            if (null != mFileOutputStream) {
+                mFileOutputStream.close();
+                mFileOutputStream = null;
+            }
+
+            if (null != mFileInputStream) {
+                mFileInputStream.close();
+                mFileInputStream = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

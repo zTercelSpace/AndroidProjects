@@ -8,8 +8,8 @@ import java.io.IOException;
 public class SerialPort {
 
     private FileDescriptor      mFd;    // mFd变量名不得修改（变量名在so库中被引用）
-    private FileInputStream     mFileInputStream;
-    private FileOutputStream    mFileOutputStream;
+    private FileInputStream     mFileInputStream    = null;
+    private FileOutputStream    mFileOutputStream   = null;
 
     ////////////////////////////////////////////////////////////////////////////
     public SerialPort(String serialPort, int baudRate) throws SecurityException, IOException {

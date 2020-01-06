@@ -5,16 +5,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
-
 import com.ztercelstuido.SerialPortUtils.SPHelper;
-import com.ztercelstuido.SerialPortUtils.SerialPort;
-
-import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-
-    SerialPort mSerialPort;
 
     private SPHelper mSPHelper = SPHelper.getInstance();
 
@@ -29,6 +23,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        byte d = (byte)0xAA;
+
+        byte[] data = new byte[]{(byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC};
+
+        ByteBuffer dataBuffer = ByteBuffer.wrap(data);
+
+        byte head1  = (byte)(dataBuffer.get() & 0xFF);
+        byte head2  = (byte)(dataBuffer.get() & 0xFF);
+        short length = (short)(dataBuffer.getShort());
+
+        if (((byte)(0xAA)) == head1) {
+            Log.d("zTercel", "" + length);
+        }
+
+        String shead1 = Integer.toHexString(head1).toUpperCase();
+        String shead2 = Integer.toHexString(head2).toUpperCase();
+        Log.d("zTercel", shead1 + " " + shead2 + " " + length);
+        return;
     }
 
     @Override
