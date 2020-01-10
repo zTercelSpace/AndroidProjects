@@ -3,10 +3,13 @@ package com.ztercelstuido.demo015;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import com.ztercelstuido.SerialPortUtils.SPHelper;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -137,19 +140,61 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     interface IFrameParser {
         void parse(ByteBuffer frame);
+        void addHandler(IHandler handler);
+        void removeHandler(IHandler handler);
+    }
+
+    interface IHandler {
+        void handle(final int cmdID, byte[] cmdData);
+    }
+
+    class CommandHandler implements IHandler {
+
+        @Override
+        public void handle(int cmdID, byte[] cmdData) {
+            switch (cmdID) {
+                case 0x50: {
+                    Log.d("zTercel", "ok --- 0x50");
+                    break;
+                }
+
+            }
+        }
     }
 
     class VehicleFrameParser implements IFrameParser {
 
-        private int frameCount = 0;
+        private List<IHandler> mHandlers = new ArrayList<IHandler>();
+
+        public void addHandler(IHandler handler) {
+            mHandlers.add(handler);
+        }
+
+        public void removeHandler(IHandler handler) {
+            for (IHandler object : mHandlers) {
+                if (object == handler) {
+                    mHandlers.remove(object);
+                }
+            }
+        }
+
+        public void notify(final int cmdID, byte[] cmdData) {
+            for (IHandler handler : mHandlers) {
+                if (null != handler) {
+                    handler.handle(cmdID, cmdData);
+                }
+            }
+        }
 
         public void parse(ByteBuffer frame) {
             if (frame.limit() > 6 && checkSum(frame)) {
+                frame.position(2);
+                int frameLength = frame.getShort();
+                byte command    = frame.get();
+                byte[] data     = new byte[frameLength - 2];
+                frame.get(data);
 
-                frameCount++;
-                Log.d("zTercel", "FrameParser::parse -- " + frameCount);
-            } else {
-                Log.d("zTercel", "FrameParser::parse -- ");
+                notify(command, data);
             }
         }
 
@@ -213,19 +258,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         byte[] HEAD_TAG = {(byte)0xAA, (byte)0x55};
+
         FixedHeadLengthFrame frameDes = new FixedHeadLengthFrame(HEAD_TAG, 2, 2);
         IFrameDecoder   decoder = new FixedHeadLengthDecoder(frameDes);
         IFrameParser    parser  = new VehicleFrameParser();
-
-        byte[][] data = {
-                {(byte)0x03, (byte)0x50, (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC,
-                 (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC, (byte)0xAA, (byte)0x55},
-                {(byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC, (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03,},
-                {(byte)0x50, (byte)0x01, (byte)0xAC, }
-        };
+        IHandler        handler = new CommandHandler();
 
         DataHandler dataHandler = new DataHandler(decoder, parser);
+        parser.addHandler(handler);
 
+        byte[][] data = {
+                {(byte)0x03, (byte)0x50, (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC}
+        };
         for (int ii = 0; ii < data.length; ii++) {
             dataHandler.onHandle(data[ii]);
         }
