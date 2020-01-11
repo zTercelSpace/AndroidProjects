@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <android/log.h>
 
-static const char *TAG = "SerialPort";
+static const char *TAG = "SerialPortHelper";
 #define Log_I(fmt, args...) 	__android_log_print(ANDROID_LOG_INFO, TAG, fmt, ##args)
 #define Log_D(fmt, args...) 	__android_log_print(ANDROID_LOG_DEBUG, TAG, fmt, ##args)
 #define Log_E(fmt, args...) 	__android_log_print(ANDROID_LOG_ERROR, TAG, fmt, ##args)
@@ -11,7 +11,7 @@ static const char *TAG = "SerialPort";
 JNIEXPORT jobject JNICALL native_open(JNIEnv *env, jclass thiz, jstring path, jint baudrate);
 JNIEXPORT jint JNICALL native_close(JNIEnv *env, jobject thiz);
 
-static const char* className = "com/ztercelstuido/SerialPortUtils/SerialPort"; //指定要注册的类
+static const char* className = "com/ztercelstuido/SerialPortUtils/SerialPortHelper"; //指定要注册的类
 static JNINativeMethod methods[] = {
         { "open", "(Ljava/lang/String;I)Ljava/io/FileDescriptor;",(void*) native_open },
         { "close", "()I",(void*) native_close },
