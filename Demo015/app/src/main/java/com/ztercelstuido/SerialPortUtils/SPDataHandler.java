@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SPHelper {
+public class SPDataHandler {
 
-    public interface IDataReceiver {
-        void onReceive(byte[] data);
+    public interface IDataHandler {
+        void handle(byte[] data);
     }
 
     // 此线程用于读取串口数据并分发
@@ -19,24 +19,41 @@ public class SPHelper {
         private long mSleepTime     = 100;
         private boolean mStopped    = false;
 
+       int index = 0;
+        int getTestData(byte[] data) {
+            byte[][] testData = {
+                {(byte)0x03, (byte)0x50, (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC}
+            };
+
+            int dataSize = 0;
+
+            if (index < testData.length) {
+                dataSize = testData[index].length;
+                System.arraycopy(testData[index], 0, data, 0, dataSize);
+            } else {
+                index = 0;
+            }
+            return dataSize;
+        }
+
         @Override
         public void run() {
-            Log.d("SPHelper", "The thread start to read data.");
+            Log.d("SPDataHandler", "The thread start to read data.");
 
             byte[] data = new byte[1024];
             while (!mStopped && !isInterrupted()) {
                 try {
                     if (null == mFileInputStream) throw new Exception();
-                    int dataSize = mFileInputStream.read(data);
+                    int dataSize = getTestData(data); // mFileInputStream.read(data);
                     if (0 < dataSize) {
                         // 数据分发
-                        for (IDataReceiver dataReceiver : mDataReceivers) {
-                            if (null != dataReceiver) {
-                                dataReceiver.onReceive(data);
+                        for (IDataHandler dataHandler : mDataHandlers) {
+                            if (null != dataHandler) {
+                                dataHandler.handle(data);
                             }
                         }
                     } else {
-                        Log.d("SPHelper", "wait data.....");
+                        Log.d("SPDataHandler", "wait data.....");
                     }
                     Thread.sleep(mSleepTime);
                 } catch (Exception e) {
@@ -45,7 +62,7 @@ public class SPHelper {
                 }
             }
 
-            Log.d("SPHelper", "The thread has been exited!");
+            Log.d("SPDataHandler", "The thread has been exited!");
         }
 
         public void stopThread() {
@@ -61,28 +78,29 @@ public class SPHelper {
 
     //////////////////////////////////////////////////////////////////////
     // 内部变量
-    private static SPHelper mSPHelper   = new SPHelper();
-    private SerialPort mSerialPort      = null;
-    private SPReadThread mSPReadThread  = null;
+    private static SPDataHandler mDataReceiver = new SPDataHandler();
+
+    private SerialPortHelper mSerialPort        = null;
+    private SPReadThread mSPReadThread          = null;
     private FileInputStream mFileInputStream    = null;
     private FileOutputStream mFileOutputStream  = null;
-    private List<IDataReceiver> mDataReceivers  = new ArrayList<IDataReceiver>();
+    private List<IDataHandler> mDataHandlers  = new ArrayList<IDataHandler>();
 
     //////////////////////////////////////////////////////////////////////
-    private SPHelper() {}
+    private SPDataHandler() {}
 
-    public static SPHelper getInstance() {
-        return  mSPHelper;
+    public static SPDataHandler getInstance() {
+        return  mDataReceiver;
     }
 
     public void openSerialPort(String serialPort, int baudRate) {
         if (null != mSerialPort)  {
-            Log.d("SPHelper", "The serial port has been opened.");
+            Log.d("SPDataHandler", "The serial port has been opened.");
             return;
         }
 
         try {
-            mSerialPort         = new SerialPort(serialPort, baudRate);
+            mSerialPort         = new SerialPortHelper(serialPort, baudRate);
             mFileInputStream    = mSerialPort.getFileIntputStream();
             mFileOutputStream   = mSerialPort.getFileOutputStream();
 
@@ -106,15 +124,15 @@ public class SPHelper {
         return isSent;
     }
 
-    public void addDataReceiver(IDataReceiver dataReceiver) {
-        if (null != dataReceiver) {
-            mDataReceivers.add(dataReceiver);
+    public void addDataHandler(IDataHandler dataHandler) {
+        if (null != dataHandler) {
+            mDataHandlers.add(dataHandler);
         }
     }
 
-    public void removeDataReceiver(IDataReceiver dataReceiver) {
-        if (null != dataReceiver) {
-            mDataReceivers.remove(dataReceiver);
+    public void removeDataHandler(IDataHandler dataHandler) {
+        if (null != dataHandler) {
+            mDataHandlers.remove(dataHandler);
         }
     }
 
