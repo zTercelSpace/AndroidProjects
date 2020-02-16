@@ -48,13 +48,12 @@ public class VehicleFrameParser implements IFrameParser {
         // Frame: Head(2Bytes) + Length Field(2Bytes) + CMD(1Byte) + Data(nBytes) + CheckSum(1Byte)
         // CheckSum: BYTE(LENGTH FIELD + CMD + DATA) ^ 0XFF + 1
         //==========================================================================================
-
         ByteBuffer frame = ByteBuffer.wrap(data);
         if (frame.limit() > FRAME_MIN_SIZE && checkSum(frame)) {
-            frame.position(2);                 // Head Field
-            int messageSize = frame.getShort();         // Length Field
-            byte messageID  = frame.get();              // CMD
-            byte[] message  = new byte[messageSize - 2];// Data
+            frame.position(2);                   // Head Field
+            int messageSize = frame.getShort();             // Length Field
+            byte messageID  = frame.get();                  // CMD
+            byte[] message  = new byte[messageSize - 2];    // Data
             frame.get(message);
 
             messageNotify(messageID, message);
