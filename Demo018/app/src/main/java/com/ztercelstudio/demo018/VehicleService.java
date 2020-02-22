@@ -3,10 +3,17 @@ package com.ztercelstudio.demo018;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import com.ztercelstudio.vehicle.IVehicleService;
 import com.ztercelstudio.vehicle.IEventListener;
@@ -18,6 +25,7 @@ public class VehicleService extends Service {
 
     private Binder mBinder = new Binder();
     private Map<String, IEventListener> mEventListeners = null;
+    private Handler mEventDeliveryHandler = null;
 
     public VehicleService() {
     }
@@ -28,6 +36,8 @@ public class VehicleService extends Service {
 
         Log.d("zTercel", "demo018::vehicleservice - onCreate");
 
+        mEventDeliveryHandler = new EventDeliveryHandler(this.getMainLooper());
+
         mEventListeners = new ConcurrentHashMap<String, IEventListener>();
         new AutoSendThread().start();
     }
@@ -35,6 +45,34 @@ public class VehicleService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder.asBinder();
+    }
+
+    private class EventDeliveryHandler extends Handler {
+        public EventDeliveryHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+
+            if (100 == msg.what) {
+                Bundle data = msg.getData();
+                int cmdID = data.getInt("cmdID");
+                byte[] command = data.getByteArray("command");
+                for (IEventListener listener : mEventListeners.values()) {
+                    try {
+                        if (null != listener) {
+                            listener.handle(cmdID, command);
+                        }
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+
+        }
     }
 
     private class AutoSendThread extends Thread {
@@ -45,16 +83,15 @@ public class VehicleService extends Service {
             int time = 0;
             do {
                 time++;
-                for (IEventListener listener : mEventListeners.values()) {
-/*
-                    try {
-                        if (null != listener) {
-                            /*listener.handle(time, new byte[]{0x11, 0x22});
-                        }
-                    } catch (RemoteException e) {
-                        e.printStackTrace();
-                    }*/
-                }
+
+                Message message = Message.obtain();
+                message.what = 100;
+                Bundle data = new Bundle();
+                data.putInt("cmdID", time);
+                data.putByteArray("command", new byte[]{0x11, 0x22});
+                message.setData(data);
+
+                mEventDeliveryHandler.sendMessage(message);
 
                 try {
                     Thread.sleep(2000);

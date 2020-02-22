@@ -36,7 +36,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void handle(int event, byte[] data) throws RemoteException {
             //String.format("0x%0x", data[0]);
             Log.d("zTercel", "handle received : " + event);
-            Toast.makeText(MainActivity.this, "event: " + event, Toast.LENGTH_LONG).show();
+            final int cmdID = event;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(MainActivity.this, "event: " + cmdID, Toast.LENGTH_LONG).show();
+                }
+            });
         }
     }
 
