@@ -3,8 +3,6 @@ package com.ztercelstuido.FrameHandler;
 
 import com.ztercelstuido.SerialPortUtils.IFrameDecoder;
 
-import java.nio.ByteBuffer;
-
 public class FixedHeadDecoder implements IFrameDecoder {
 
     private byte[]  mHead;
@@ -24,51 +22,6 @@ public class FixedHeadDecoder implements IFrameDecoder {
     }
 
     @Override
-    public boolean decode(ByteBuffer data, FrameInfo frameInfo) {
-        //-----------------------------------------------------------------
-        // frame:　head flag + data length field + data
-        //-----------------------------------------------------------------
-        boolean isDecoded = false;
-        if (data.limit() > (mLengthFieldOffset + mLengthFieldBytes)) {
-            byte[] lengthBytes  = new byte[mLengthFieldBytes];
-            int frameHeadPos    = findFrameHeadPos(data, mHead);
-            data.position(frameHeadPos + mLengthFieldOffset);
-            data.get(lengthBytes);
-            int dataFiledBytes  = byteArrayToInt(lengthBytes);
-            if ((-1 != frameHeadPos) && (0 < dataFiledBytes)) {
-                int frameTailPos = frameHeadPos + mLengthFieldOffset + mLengthFieldBytes + dataFiledBytes;
-                if (data.limit() >= frameTailPos) {
-                    frameInfo.headPos   = frameHeadPos;
-                    frameInfo.tailPos   = frameTailPos;
-                    frameInfo.length    = frameTailPos - frameHeadPos;
-
-                    isDecoded = true;
-                }
-            }
-        }
-
-        return isDecoded;
-    }
-
-    int findFrameHeadPos(ByteBuffer data, byte[] head) {
-        int frameHeadPos = -1;
-        boolean isFound  = false;
-
-        for (int ii = 0; ii < data.limit() && !isFound; ii++) {
-            frameHeadPos = ii;
-            for (int jj = 0; jj < head.length; jj++) {
-                if (data.get(ii + jj) == head[jj]) {
-                    isFound = true;
-                } else {
-                    isFound = false;
-                    break;
-                }
-            }
-        }
-
-        return isFound ? frameHeadPos : -1;
-    }
-
     public boolean decode(byte[] data, int dataBytes, FrameInfo frameInfo) {
         //-----------------------------------------------------------------
         // frame:　head flag + lengthfield + data

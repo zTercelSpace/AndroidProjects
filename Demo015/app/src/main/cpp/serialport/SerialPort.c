@@ -88,8 +88,8 @@ JNIEXPORT jobject JNICALL native_open(JNIEnv *env, jclass thiz, jstring path, ji
 	{
 		jboolean iscopy;
 		const char *path_utf = (*env)->GetStringUTFChars(env, path, &iscopy);
-		Log_D("Opening serial port %s with flags 0x%x", path_utf, O_RDWR | O_NOCTTY | O_NONBLOCK | O_NDELAY);
-		fd = open(path_utf, O_RDWR | O_NOCTTY | O_NONBLOCK | O_NDELAY);
+		Log_D("Opening serial port %s with flags 0x%x", path_utf, O_RDWR);// | O_NOCTTY | O_NONBLOCK | O_NDELAY);
+		fd = open(path_utf, O_RDWR); // | O_NOCTTY | O_NONBLOCK | O_NDELAY);
 		Log_D("open() fd = %d", fd);
 		(*env)->ReleaseStringUTFChars(env, path, path_utf);
 		if (fd == -1)
@@ -133,6 +133,11 @@ JNIEXPORT jobject JNICALL native_open(JNIEnv *env, jclass thiz, jstring path, ji
 		jfieldID descriptorID = (*env)->GetFieldID(env, cFileDescriptor, "descriptor", "I");
 		mFileDescriptor = (*env)->NewObject(env, cFileDescriptor, iFileDescriptor);
 		(*env)->SetIntField(env, mFileDescriptor, descriptorID, (jint)fd);
+		if (NULL != mFileDescriptor) {
+			Log_D("open() mFileDescriptor = %d", mFileDescriptor);
+		} else {
+			Log_D("open() mFileDescriptor = %d", 0);
+		}
 	}
 
 	return mFileDescriptor;

@@ -1,17 +1,15 @@
 package com.ztercelstuido.SerialPortUtils;
-
-import android.util.Log;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import android.util.Log;
 
 public class SPDataHandler {
 
     public interface IDataHandler {
-        void handle(byte[] data);
+        void onDataReceived(byte[] data, int dataSize);
     }
 
     // 此线程用于读取串口数据并分发
@@ -22,7 +20,8 @@ public class SPDataHandler {
        int index = 0;
         int getTestData(byte[] data) {
             byte[][] testData = {
-                {(byte)0x03, (byte)0x50, (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x03, (byte)0x50, (byte)0x01, (byte)0xAC}
+                {(byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x06, (byte)0xD0, (byte)0x43, (byte)0x5C, (byte)0x0A, (byte)0xEE, (byte)0x93,
+                 (byte)0xAA, (byte)0x55, (byte)0x00, (byte)0x05, (byte)0xD0, (byte)0x43, (byte)0x72, (byte)0x00, (byte)0x76}
             };
 
             int dataSize = 0;
@@ -44,21 +43,19 @@ public class SPDataHandler {
             while (!mStopped && !isInterrupted()) {
                 try {
                     if (null == mFileInputStream) throw new Exception();
-                    int dataSize = getTestData(data); // mFileInputStream.read(data);
+                    int dataSize = mFileInputStream.read(data);
+
                     if (0 < dataSize) {
                         // 数据分发
                         for (IDataHandler dataHandler : mDataHandlers) {
                             if (null != dataHandler) {
-                                dataHandler.handle(data);
+                                dataHandler.onDataReceived(data, dataSize);
                             }
                         }
-                    } else {
-                        Log.d("SPDataHandler", "wait data.....");
                     }
                     Thread.sleep(mSleepTime);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    break;
                 }
             }
 

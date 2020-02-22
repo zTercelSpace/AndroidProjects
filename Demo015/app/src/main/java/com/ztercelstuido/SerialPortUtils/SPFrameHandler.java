@@ -1,5 +1,9 @@
 package com.ztercelstuido.SerialPortUtils;
 
+import android.util.Log;
+
+import com.ztercelstuido.SmartClassUtils.SmartClassUtils;
+
 import java.nio.ByteBuffer;
 
 public class SPFrameHandler implements SPDataHandler.IDataHandler {
@@ -15,32 +19,10 @@ public class SPFrameHandler implements SPDataHandler.IDataHandler {
     }
 
     @Override
-    public void handle(byte[] data) {
-        mByteBuffer.put(data);
+    public void onDataReceived(byte[] data, int dataSize) {
+        //Log.d("zTercel", "source: " + SmartClassUtils.BytePrinter.byteArrayToHex(data, dataSize));
 
-        IFrameDecoder.FrameInfo frameInfo = new IFrameDecoder.FrameInfo();
-        mByteBuffer.flip();
-        while (mByteBuffer.hasRemaining() && mFrameDecoder.decode(mByteBuffer.slice(), frameInfo)) {
-            mByteBuffer.position(frameInfo.headPos);
-            byte[] frame = new byte[frameInfo.length];
-            mByteBuffer.get(frame);
-
-            if (null != mFrameParser) {
-                mFrameParser.parse(frame);
-            }
-            mByteBuffer.compact();
-            mByteBuffer.flip();
-        }
-
-        if (mByteBuffer.position() > mByteBuffer.capacity() / 5 * 4) {
-            mByteBuffer.clear();
-        }
-    }
-
-    /*
-    @Override
-    public void handle(byte[] data) {
-        mByteBuffer.put(data);
+        mByteBuffer.put(data, 0, dataSize);
 
         IFrameDecoder.FrameInfo frameInfo = new IFrameDecoder.FrameInfo();
 
@@ -51,9 +33,8 @@ public class SPFrameHandler implements SPDataHandler.IDataHandler {
             mByteBuffer.get(frame);
 
             if (null != mFrameParser) {
-                mFrameParser.parse(frame);
+                mFrameParser.parse(frame, frameInfo.length);
             }
-
             mByteBuffer.compact();
             mByteBuffer.flip();
         }
@@ -62,7 +43,5 @@ public class SPFrameHandler implements SPDataHandler.IDataHandler {
         if (mByteBuffer.position() > mByteBuffer.capacity() / 5 * 4) {
             mByteBuffer.clear();
         }
-    }*/
-
-
+    }
 }
