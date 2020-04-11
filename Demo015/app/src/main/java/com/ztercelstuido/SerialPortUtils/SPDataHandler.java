@@ -45,6 +45,7 @@ public class SPDataHandler {
                     if (null == mFileInputStream) throw new Exception();
                     int dataSize = mFileInputStream.read(data);
 
+                    Log.d("zTercel", "size: " + dataSize);
                     if (0 < dataSize) {
                         // 数据分发
                         for (IDataHandler dataHandler : mDataHandlers) {

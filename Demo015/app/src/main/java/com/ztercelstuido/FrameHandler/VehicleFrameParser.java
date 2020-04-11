@@ -11,7 +11,7 @@ import java.util.logging.Handler;
 
 import android.util.Log;
 
-import android.os.Handler;
+
 
 public class VehicleFrameParser implements IFrameParser {
     private final int FRAME_MIN_SIZE = 6;
@@ -19,10 +19,6 @@ public class VehicleFrameParser implements IFrameParser {
     private List<IMessageHandler> mHandlers = new ArrayList<IMessageHandler>();
 
 
-    private class DeliveryHandler extends Handler {
-
-
-    };
 
     public VehicleFrameParser() {
 
